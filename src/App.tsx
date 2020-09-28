@@ -1,26 +1,28 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import AplicationProvider from "./context/aplicationContext";
+import Menu from "./components/menu";
+import Keyboard from "./components/keyboard";
 
-function App() {
+import Container from "./components/container";
+import "./App.css";
+
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AplicationProvider>
+      <Menu />
+      <section className="main-content">
+        <div className="App" style={{ overflow: "hidden" }}>
+          <Keyboard />
+          <section className="filmes-content">
+            <h4 className="label-carousel">Filmes</h4>
+            <Container id={2}></Container>
+            <h4 className="label-carousel">Series</h4>
+            <Container id={3}></Container>
+          </section>
+        </div>
+      </section>
+    </AplicationProvider>
   );
-}
+};
 
 export default App;
