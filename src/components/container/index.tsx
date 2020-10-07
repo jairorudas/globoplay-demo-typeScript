@@ -62,10 +62,10 @@ const Container: React.FC = ({
           goToFilme("next");
         }
 
-        if (e.key === "ArrowDown" && +id === 2) {
+        if (e.key === "ArrowDown" && onLeaveDown) {
           onLeaveDown();
         }
-        if (e.key === "ArrowUp") {
+        if (e.key === "ArrowUp" && onLeaveTop) {
           onLeaveTop();
         }
       }
