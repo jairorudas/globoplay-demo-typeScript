@@ -24,10 +24,10 @@ export default () => {
               localStorage.setItem("currentNav", NAVIGATION.keyboard);
             }
             if (e.key === "ArrowDown") {
-              setItemMenu((item) => item + 1);
+              setItemMenu((item) => (item < 4 ? item + 1 : item));
             }
             if (e.key === "ArrowUp") {
-              setItemMenu((item) => item - 1);
+              setItemMenu((item) => (item > 0 ? item - 1 : item));
             }
           }
         },
