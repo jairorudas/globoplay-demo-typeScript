@@ -1,93 +1,63 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import search from "../../assets/search.png";
 import feed from "../../assets/feed.png";
 import market from "../../assets/market.png";
 import videoPlayer from "../../assets/video-player.png";
 import user from "../../assets/user.png";
-import NAVIGATION from "../../utils/navContainer";
 
 import "./styles.css";
 
-export default () => {
-  const [currentNav, setCurrentNav] = useState();
-  const [itemMenu, setItemMenu] = useState(0);
+const Menu = ({ isActive, onLeaveRight }) => {
+  const [itemMenu, setItemMenu] = useState(1);
 
+  const onKeyDown = useCallback(
+    (e) => {
+      if (isActive) {
+        if (e.key === "ArrowRight") {
+          onLeaveRight();
+        }
+        if (e.key === "ArrowDown") {
+          setItemMenu((item) => (item < 4 ? item + 1 : item));
+        }
+        if (e.key === "ArrowUp") {
+          setItemMenu((item) => (item > 0 ? item - 1 : item));
+        }
+      }
+    },
+    [isActive]
+  );
   useEffect(() => {
-    document.addEventListener("keydown", (e) => {
-      setTimeout(
-        () => {
-          const currentContainer = +localStorage.getItem("currentNav");
-          setCurrentNav(currentContainer);
+    document.addEventListener("keydown", onKeyDown);
 
-          if (currentContainer === 0) {
-            if (e.key === "ArrowRight") {
-              localStorage.setItem("currentNav", NAVIGATION.keyboard);
-            }
-            if (e.key === "ArrowDown") {
-              setItemMenu((item) => (item < 4 ? item + 1 : item));
-            }
-            if (e.key === "ArrowUp") {
-              setItemMenu((item) => (item > 0 ? item - 1 : item));
-            }
-          }
-        },
-        100,
-        this
-      );
-    });
-  }, []);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [isActive, onKeyDown]);
 
   return (
     <section id="nav-0">
-      <ul
-        className={`fatherList ${currentNav === 0 ? "menu-open" : ""}`}
-        id="menu"
-      >
-        <li
-          className={`item ${
-            currentNav === 0 && itemMenu === 0 ? "active" : ""
-          }`}
-        >
+      <ul className={`fatherList ${isActive ? "menu-open" : ""}`} id="menu">
+        <li className={`item ${isActive && itemMenu === 0 ? "active" : ""}`}>
           <img src={search} alt="search" />
-          <p className={`${currentNav === 0 ? "show-label" : ""}`}> Busca</p>
+          <p className={`${isActive ? "show-label" : ""}`}> Busca</p>
         </li>
-        <li
-          className={`item ${
-            currentNav === 0 && itemMenu === 1 ? "active" : ""
-          }`}
-        >
+        <li className={`item ${isActive && itemMenu === 1 ? "active" : ""}`}>
           <img src={market} alt="Inicio" />
-          <p className={`${currentNav === 0 ? "show-label" : ""}`}>Inicio</p>
+          <p className={`${isActive ? "show-label" : ""}`}>Inicio</p>
         </li>
-        <li
-          className={`item ${
-            currentNav === 0 && itemMenu === 2 ? "active" : ""
-          }`}
-        >
+        <li className={`item ${isActive && itemMenu === 2 ? "active" : ""}`}>
           <img src={feed} alt="Now" />
-          <p className={`${currentNav === 0 ? "show-label" : ""}`}>
-            Agora na TV
-          </p>
+          <p className={`${isActive ? "show-label" : ""}`}>Agora na TV</p>
         </li>
-        <li
-          className={`item ${
-            currentNav === 0 && itemMenu === 3 ? "active" : ""
-          }`}
-        >
+        <li className={`item ${isActive && itemMenu === 3 ? "active" : ""}`}>
           <img src={videoPlayer} alt="Categoria" />
-          <p className={`${currentNav === 0 ? "show-label" : ""}`}>
-            Categorias
-          </p>
+          <p className={`${isActive ? "show-label" : ""}`}>Categorias</p>
         </li>
-        <li
-          className={`item ${
-            currentNav === 0 && itemMenu === 4 ? "active" : ""
-          }`}
-        >
+        <li className={`item ${isActive && itemMenu === 4 ? "active" : ""}`}>
           <img src={user} alt="User" />
-          <p className={`${currentNav === 0 ? "show-label" : ""}`}>User</p>
+          <p className={`${isActive ? "show-label" : ""}`}>User</p>
         </li>
       </ul>
     </section>
   );
 };
+
+export default Menu;

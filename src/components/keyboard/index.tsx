@@ -1,11 +1,17 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useContext,
+  useRef,
+  useCallback,
+} from "react";
 import { AplicationContext } from "../../context/aplicationContext";
 import paintFocus, { removeFocus } from "../../utils/paintElement";
 import NAVIGATION from "../../utils/navContainer";
 
 import "./styles.css";
 
-const Keyboard: React.FC = () => {
+const Keyboard: React.FC = ({ isActive, onLeaveLeft, onLeaveRight }) => {
   const [search, setSearch] = useState<string[]>([]);
   const [isSpaceSelected, setSpaceSelected] = useState(false);
   const [isDeleteSelected, setDeleteSelected] = useState(false);
@@ -106,13 +112,13 @@ const Keyboard: React.FC = () => {
 
   const verifyMove = (changeContainerFocus: boolean, side: string) => {
     if (changeContainerFocus && side === "left") {
-      localStorage.setItem("currentNav", NAVIGATION.menu);
       removeFocus(MATRIZ[counterX.current][counterY.current], "#000");
+      onLeaveLeft();
       return;
     }
     if (changeContainerFocus && side === "right") {
       removeFocus(MATRIZ[counterX.current][counterY.current], "#000");
-      localStorage.setItem("currentNav", NAVIGATION.carousel1);
+      onLeaveRight();
       return;
     }
     if (changeContainerFocus && side === "up") {
@@ -158,42 +164,45 @@ const Keyboard: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    document.addEventListener(
-      "keydown",
-      (e) => {
-        if (Number(localStorage.getItem("currentNav")) === 1) {
-          let changeContainerFocus;
-          const currentFoco = MATRIZ[counterX.current][counterY.current];
-          switch (e.key) {
-            case "Enter":
-              pressLetter(currentFoco);
-              break;
-            case "ArrowLeft":
-              changeContainerFocus = leftEdge.includes(currentFoco);
-              verifyMove(changeContainerFocus, "left");
-              break;
-            case "ArrowRight":
-              changeContainerFocus = RightEdge.includes(currentFoco);
-              verifyMove(changeContainerFocus, "right");
-              break;
-            case "ArrowDown":
-              changeContainerFocus = bottomEdge.includes(currentFoco);
-              verifyMove(changeContainerFocus, "down");
-              break;
-            case "ArrowUp":
-              changeContainerFocus = topEdge.includes(currentFoco);
-              verifyMove(changeContainerFocus, "up");
-              break;
-            default:
-              break;
-          }
+  const onkeydown = useCallback(
+    (e) => {
+      if (isActive) {
+        let changeContainerFocus;
+        const currentFoco = MATRIZ[counterX.current][counterY.current];
+        switch (e.key) {
+          case "Enter":
+            pressLetter(currentFoco);
+            break;
+          case "ArrowLeft":
+            changeContainerFocus = leftEdge.includes(currentFoco);
+            verifyMove(changeContainerFocus, "left");
+            break;
+          case "ArrowRight":
+            changeContainerFocus = RightEdge.includes(currentFoco);
+            verifyMove(changeContainerFocus, "right");
+            break;
+          case "ArrowDown":
+            changeContainerFocus = bottomEdge.includes(currentFoco);
+            verifyMove(changeContainerFocus, "down");
+            break;
+          case "ArrowUp":
+            changeContainerFocus = topEdge.includes(currentFoco);
+            verifyMove(changeContainerFocus, "up");
+            break;
+          default:
+            break;
         }
-      },
-      this
-    );
-    localStorage.setItem("currentNav", NAVIGATION.keyboard);
-  }, []);
+      }
+    },
+    [isActive]
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", onkeydown);
+    return () => {
+      document.removeEventListener("keydown", onkeydown);
+    };
+  }, [onkeydown]);
 
   useEffect(() => {
     const busca = (search.length > 0 ? search.join("") : "").toLowerCase();

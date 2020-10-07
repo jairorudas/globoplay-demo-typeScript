@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useCallback, useState } from "react";
 import { AplicationContext } from "../../context/aplicationContext";
 import NAVIGATION from "../../utils/navContainer";
 import FilmeSchema from "../../../src/interfaces/filme";
@@ -9,7 +9,15 @@ const Item = ({ filme } = { filme: FilmeSchema }) => (
   <img className="img-filme" src={filme.show.image?.medium} alt="img" />
 );
 
-const Container: React.FC = ({ id }: { id: string }) => {
+const Container: React.FC = ({
+  id,
+  isActive,
+  onLeaveLeft,
+  onLeaveDown,
+  onLeaveTop,
+}: {
+  id: string;
+}) => {
   const { filmes, findFilme } = useContext(AplicationContext);
 
   const [currentNav, setCurrentNav] = useState(0);
@@ -17,10 +25,8 @@ const Container: React.FC = ({ id }: { id: string }) => {
   let index = 0;
 
   const animateCarousel = (side: string) => {
-    const currentContainerID = Number(localStorage.getItem("currentNav"));
-    setCurrentNav(currentContainerID);
     let NEW_TRANSLATE = null;
-    const NODE = document.getElementById(`nav-${currentContainerID}`);
+    const NODE = document.getElementById(`nav-${id}`);
     const LIST = NODE.getElementsByTagName("li") || [];
     const DATA_TRANSFORM = LIST[0].style.transform;
     const value =
@@ -45,11 +51,9 @@ const Container: React.FC = ({ id }: { id: string }) => {
     }
   };
 
-  useEffect(() => {
-    document.addEventListener("keydown", (e) => {
-      let currentContainer = Number(localStorage.getItem("currentNav"));
-      setCurrentNav(currentContainer);
-      if (currentContainer === +id) {
+  const onKeyDown = useCallback(
+    (e) => {
+      if (isActive) {
         if (e.key === "ArrowLeft") {
           goToFilme("prev");
         }
@@ -58,15 +62,21 @@ const Container: React.FC = ({ id }: { id: string }) => {
           goToFilme("next");
         }
 
-        if (e.key === "ArrowDown") {
-          localStorage.setItem("currentNav", NAVIGATION.carousel2);
+        if (e.key === "ArrowDown" && +id === 2) {
+          onLeaveDown();
         }
         if (e.key === "ArrowUp") {
-          localStorage.setItem("currentNav", NAVIGATION.carousel1);
+          onLeaveTop();
         }
       }
-    });
-  }, []);
+    },
+    [isActive, onLeaveDown, onLeaveTop, onLeaveLeft]
+  );
+  useEffect(() => {
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [onKeyDown]);
 
   useEffect(() => {
     if (findFilme) {
@@ -89,7 +99,7 @@ const Container: React.FC = ({ id }: { id: string }) => {
       animateCarousel(move);
     } else {
       if (index === 0) {
-        localStorage.setItem("currentNav", NAVIGATION.keyboard);
+        onLeaveLeft();
       } else {
         index -= 1;
         animateCarousel(move);
@@ -106,7 +116,7 @@ const Container: React.FC = ({ id }: { id: string }) => {
           </li>
         ))}
       </ul>
-      <div className={` ${currentNav === +id ? "selection" : ""} `}></div>
+      <div className={` ${isActive ? "selection" : ""} `}></div>
     </section>
   );
 };
