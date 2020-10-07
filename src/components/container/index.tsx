@@ -19,8 +19,6 @@ const Container: React.FC = ({
   id: string;
 }) => {
   const { filmes, findFilme } = useContext(AplicationContext);
-
-  const [currentNav, setCurrentNav] = useState(0);
   const [localFilmes, setLocalFilmes] = useState<FilmeSchema[]>([]);
   let index = 0;
 
