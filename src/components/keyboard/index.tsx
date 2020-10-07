@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { AplicationContext } from "../../context/aplicationContext";
 import paintFocus, { removeFocus } from "../../utils/paintElement";
-import NAVIGATION from "../../utils/navContainer";
 
 import "./styles.css";
 
@@ -167,8 +166,10 @@ const Keyboard: React.FC = ({ isActive, onLeaveLeft, onLeaveRight }) => {
   const onkeydown = useCallback(
     (e) => {
       if (isActive) {
+        debugger;
         let changeContainerFocus;
         const currentFoco = MATRIZ[counterX.current][counterY.current];
+        paintFocus(currentFoco);
         switch (e.key) {
           case "Enter":
             pressLetter(currentFoco);
@@ -194,15 +195,20 @@ const Keyboard: React.FC = ({ isActive, onLeaveLeft, onLeaveRight }) => {
         }
       }
     },
-    [isActive]
+    [isActive, MATRIZ]
   );
 
   useEffect(() => {
+    if (isActive) {
+      const currentFoco = MATRIZ[counterX.current][counterY.current];
+      paintFocus(currentFoco);
+    }
+
     document.addEventListener("keydown", onkeydown);
     return () => {
       document.removeEventListener("keydown", onkeydown);
     };
-  }, [onkeydown]);
+  }, [isActive, onkeydown]);
 
   useEffect(() => {
     const busca = (search.length > 0 ? search.join("") : "").toLowerCase();
